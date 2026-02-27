@@ -1,0 +1,1090 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Article — Prime Headlines</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0a0a0a;
+    --paper: #e0f4ff;
+    --cream: #c8eaf8;
+    --red: #c0392b;
+    --gold: #c9a84c;
+    --muted: #7a7468;
+    --border: rgba(10,10,10,0.12);
+  }
+
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'DM Sans', sans-serif;
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* Custom Cursor */
+  .cursor {
+    position: fixed;
+    width: 12px; height: 12px;
+    background: var(--red);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-50%, -50%);
+    transition: width 0.2s, height 0.2s;
+    mix-blend-mode: multiply;
+  }
+  .cursor-ring {
+    position: fixed;
+    width: 36px; height: 36px;
+    border: 1.5px solid var(--ink);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9998;
+    transform: translate(-50%, -50%);
+    transition: transform 0.18s ease;
+  }
+
+  /* ===== HEADER ===== */
+  .top-bar {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 10px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .back-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--paper);
+    text-decoration: none;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    transition: color 0.2s;
+    cursor: pointer;
+    background: none;
+    border: none;
+  }
+  .back-btn:hover { color: var(--gold); }
+  .back-btn::before { content: '←'; font-size: 16px; }
+
+  .top-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 24px;
+    font-weight: 900;
+    color: var(--paper);
+    letter-spacing: -1px;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .top-logo span { color: var(--gold); }
+
+  .share-btn {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--gold);
+    background: none;
+    border: 1px solid var(--gold);
+    padding: 6px 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .share-btn:hover { background: var(--gold); color: var(--ink); }
+
+  /* ===== ARTICLE HERO ===== */
+  .article-hero {
+    position: relative;
+    min-height: 420px;
+    display: flex;
+    align-items: flex-end;
+    overflow: hidden;
+  }
+  .article-hero-bg {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+  }
+  .article-hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.92) 40%, rgba(0,0,0,0.2) 100%);
+    z-index: 1;
+  }
+  .article-hero-content {
+    position: relative;
+    z-index: 2;
+    padding: 48px 40px;
+    max-width: 900px;
+    animation: fadeUp 0.8s ease both;
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .article-category {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .article-category::before {
+    content: '';
+    display: block;
+    width: 20px;
+    height: 1px;
+    background: var(--gold);
+  }
+
+  .article-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(28px, 5vw, 52px);
+    font-weight: 900;
+    line-height: 1.1;
+    letter-spacing: -1.5px;
+    color: #fff;
+    margin-bottom: 16px;
+  }
+  .article-title em { font-style: italic; color: var(--gold); }
+
+  .article-deck {
+    font-size: 17px;
+    line-height: 1.65;
+    color: rgba(255,255,255,0.7);
+    font-weight: 300;
+    max-width: 680px;
+    margin-bottom: 20px;
+  }
+
+  .article-meta-bar {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+  .author-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .author-avatar {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Playfair Display', serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--ink);
+    flex-shrink: 0;
+  }
+  .author-name {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: rgba(255,255,255,0.85);
+    letter-spacing: 0.05em;
+  }
+  .author-title {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: rgba(255,255,255,0.4);
+    letter-spacing: 0.05em;
+  }
+  .meta-divider {
+    width: 1px; height: 28px;
+    background: rgba(255,255,255,0.15);
+  }
+  .meta-item {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: rgba(255,255,255,0.45);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  /* ===== ARTICLE BODY ===== */
+  .article-wrapper {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 48px 40px;
+    display: grid;
+    grid-template-columns: 1fr 280px;
+    gap: 56px;
+    align-items: start;
+  }
+
+  .article-body { }
+
+  /* Progress bar */
+  .reading-progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 3px;
+    background: var(--red);
+    z-index: 9997;
+    transition: width 0.1s;
+    width: 0%;
+  }
+
+  .article-text p {
+    font-size: 18px;
+    line-height: 1.85;
+    color: #2a2520;
+    font-weight: 300;
+    margin-bottom: 24px;
+  }
+  .article-text h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1.25;
+    letter-spacing: -0.5px;
+    margin: 40px 0 16px;
+    color: var(--ink);
+  }
+  .article-text h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 700;
+    margin: 32px 0 12px;
+    color: var(--ink);
+  }
+  .article-text blockquote {
+    border-left: 4px solid var(--red);
+    padding: 16px 24px;
+    margin: 32px 0;
+    background: var(--cream);
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-style: italic;
+    line-height: 1.5;
+    color: var(--ink);
+  }
+  .article-text .drop-cap::first-letter {
+    font-family: 'Playfair Display', serif;
+    font-size: 72px;
+    font-weight: 900;
+    float: left;
+    line-height: 0.8;
+    margin: 8px 12px 0 0;
+    color: var(--red);
+  }
+
+  .article-image {
+    width: 100%;
+    margin: 32px 0;
+    position: relative;
+  }
+  .article-image-inner {
+    width: 100%;
+    height: 320px;
+    position: relative;
+    overflow: hidden;
+  }
+  .article-image-bg {
+    width: 100%; height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Playfair Display', serif;
+    font-size: 60px;
+    font-weight: 900;
+    color: rgba(255,255,255,0.1);
+  }
+  .article-image-caption {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.05em;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* Tags */
+  .article-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 32px 0;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+  }
+  .tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 5px 12px;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .tag:hover { border-color: var(--ink); color: var(--ink); }
+
+  /* Share bar */
+  .share-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 20px 0;
+    border-top: 2px solid var(--ink);
+    border-bottom: 1px solid var(--border);
+    margin: 24px 0 40px;
+  }
+  .share-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .share-icon {
+    width: 36px; height: 36px;
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+    color: var(--ink);
+  }
+  .share-icon:hover { background: var(--ink); color: var(--paper); }
+
+  /* ===== SIDEBAR ===== */
+  .article-sidebar {
+    position: sticky;
+    top: 60px;
+  }
+
+  .sidebar-widget {
+    margin-bottom: 32px;
+    padding-bottom: 32px;
+    border-bottom: 1px solid var(--border);
+  }
+  .sidebar-widget:last-child { border-bottom: none; }
+
+  .widget-heading {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--ink);
+    margin-bottom: 16px;
+  }
+
+  .related-item {
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+  }
+  .related-item:last-child { border-bottom: none; }
+  .related-cat {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--red);
+    margin-bottom: 4px;
+  }
+  .related-headline {
+    font-family: 'Playfair Display', serif;
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1.35;
+    transition: color 0.2s;
+  }
+  .related-item:hover .related-headline { color: var(--red); }
+  .related-time {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+
+  /* Newsletter */
+  .nl-widget {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 20px;
+  }
+  .nl-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .nl-sub {
+    font-size: 12px;
+    color: rgba(255,255,255,0.5);
+    line-height: 1.5;
+    margin-bottom: 14px;
+  }
+  .nl-input {
+    width: 100%;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    color: var(--paper);
+    padding: 9px 12px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    margin-bottom: 8px;
+    outline: none;
+  }
+  .nl-input::placeholder { color: rgba(255,255,255,0.3); }
+  .nl-btn {
+    width: 100%;
+    background: var(--red);
+    color: #fff;
+    border: none;
+    padding: 9px;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+
+  /* ===== MORE ARTICLES ===== */
+  .more-section {
+    background: var(--ink);
+    padding: 48px 40px;
+  }
+  .more-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 28px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+  }
+  .more-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+  .more-card {
+    cursor: pointer;
+    padding: 20px;
+    border: 1px solid rgba(255,255,255,0.08);
+    transition: background 0.2s;
+  }
+  .more-card:hover { background: rgba(255,255,255,0.05); }
+  .more-cat {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 8px;
+  }
+  .more-headline {
+    font-family: 'Playfair Display', serif;
+    font-size: 17px;
+    font-weight: 700;
+    line-height: 1.35;
+    color: rgba(245,240,232,0.9);
+    transition: color 0.2s;
+    margin-bottom: 8px;
+  }
+  .more-card:hover .more-headline { color: #fff; }
+  .more-time {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: rgba(255,255,255,0.3);
+  }
+
+  /* Footer */
+  .mini-footer {
+    background: #050505;
+    color: rgba(255,255,255,0.2);
+    padding: 20px 40px;
+    display: flex;
+    justify-content: space-between;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+  }
+
+  @media (max-width: 768px) {
+    .article-wrapper { grid-template-columns: 1fr; gap: 32px; padding: 32px 20px; }
+    .article-hero-content { padding: 32px 20px; }
+    .article-sidebar { position: static; }
+    .more-grid { grid-template-columns: 1fr; }
+    .top-bar { padding: 10px 20px; }
+    .more-section { padding: 32px 20px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Reading Progress Bar -->
+<div class="reading-progress" id="readingProgress"></div>
+
+<!-- Custom Cursor -->
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- ===== TOP BAR ===== -->
+<div class="top-bar">
+  <button class="back-btn" onclick="goBack()">Back to Home</button>
+  <div class="top-logo" onclick="goBack()">Prime <span>Headlines</span></div>
+  <button class="share-btn" onclick="shareArticle()">Share</button>
+</div>
+
+<!-- ===== ARTICLE HERO ===== -->
+<div class="article-hero" id="articleHero">
+  <div class="article-hero-bg" id="articleHeroBg"></div>
+  <div class="article-hero-overlay"></div>
+  <div class="article-hero-content">
+    <div class="article-category" id="articleCategory">World</div>
+    <h1 class="article-title" id="articleTitle">Loading...</h1>
+    <p class="article-deck" id="articleDeck"></p>
+    <div class="article-meta-bar">
+      <div class="author-info">
+        <div class="author-avatar" id="authorAvatar"></div>
+        <div>
+          <div class="author-name" id="authorName"></div>
+          <div class="author-title" id="authorRole"></div>
+        </div>
+      </div>
+      <div class="meta-divider"></div>
+      <div class="meta-item" id="articleDate"></div>
+      <div class="meta-divider"></div>
+      <div class="meta-item" id="articleReadTime"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== ARTICLE BODY ===== -->
+<div class="article-wrapper">
+  <div class="article-body">
+    <div class="article-text" id="articleContent"></div>
+
+    <div class="article-tags" id="articleTags"></div>
+
+    <div class="share-bar">
+      <span class="share-label">Share</span>
+      <a class="share-icon" title="Twitter">𝕏</a>
+      <a class="share-icon" title="Facebook">f</a>
+      <a class="share-icon" title="LinkedIn">in</a>
+      <a class="share-icon" title="Copy Link" onclick="copyLink()">🔗</a>
+    </div>
+  </div>
+
+  <!-- Sidebar -->
+  <aside class="article-sidebar">
+    <div class="sidebar-widget">
+      <div class="widget-heading">Related Stories</div>
+      <div class="related-item" onclick="loadArticle('tech1')">
+        <div class="related-cat">Technology</div>
+        <div class="related-headline">OpenAI's New Model Passes the Bar Exam With 97th Percentile Score</div>
+        <div class="related-time">2 hours ago</div>
+      </div>
+      <div class="related-item" onclick="loadArticle('climate1')">
+        <div class="related-cat">Climate</div>
+        <div class="related-headline">Antarctic Ice Sheet Loss Accelerates to Record Levels</div>
+        <div class="related-time">4 hours ago</div>
+      </div>
+      <div class="related-item" onclick="loadArticle('politics1')">
+        <div class="related-cat">Politics</div>
+        <div class="related-headline">Senate Passes Landmark Digital Privacy Act in 78–22 Vote</div>
+        <div class="related-time">5 hours ago</div>
+      </div>
+      <div class="related-item" onclick="loadArticle('science1')">
+        <div class="related-cat">Science</div>
+        <div class="related-headline">CRISPR Trial Shows 94% Efficacy Against Early-Stage Alzheimer's</div>
+        <div class="related-time">Today</div>
+      </div>
+    </div>
+
+    <div class="sidebar-widget nl-widget">
+      <div class="nl-title">Morning Brief</div>
+      <div class="nl-sub">5 essential stories before 7am. No noise.</div>
+      <input class="nl-input" type="email" placeholder="your@email.com">
+      <button class="nl-btn">Subscribe Free →</button>
+    </div>
+  </aside>
+</div>
+
+<!-- ===== MORE ARTICLES ===== -->
+<section class="more-section">
+  <div class="more-title">More Stories</div>
+  <div class="more-grid">
+    <div class="more-card" onclick="loadArticle('business1')">
+      <div class="more-cat">Business</div>
+      <div class="more-headline">NVIDIA Surpasses $4 Trillion Market Cap, World's Most Valuable Company</div>
+      <div class="more-time">7 hours ago · 4 min read</div>
+    </div>
+    <div class="more-card" onclick="loadArticle('culture1')">
+      <div class="more-cat">Culture</div>
+      <div class="more-headline">How Hollywood Lost the Plot — And What Comes After the Streaming Wars</div>
+      <div class="more-time">Today · 12 min read</div>
+    </div>
+    <div class="more-card" onclick="loadArticle('science2')">
+      <div class="more-cat">Space</div>
+      <div class="more-headline">NASA's Artemis V Crew Confirmed — First Lunar Base Module Arrives in 2027</div>
+      <div class="more-time">Today · 7 min read</div>
+    </div>
+  </div>
+</section>
+
+<div class="mini-footer">
+  <span>© 2026 Prime Headlines Inc.</span>
+  <span>Privacy · Terms · Contact</span>
+</div>
+
+<script>
+  // ===== ARTICLES DATABASE =====
+  const articles = {
+    world1: {
+      title: "The Great Rewiring of the Global Order Has Begun",
+      titleFormatted: 'The <em>Great Rewiring</em> of the Global Order Has Begun',
+      category: "World",
+      deck: "As old alliances fracture and new ones form across the Pacific and Atlantic, analysts say the geopolitical map is being redrawn at a speed not seen since the fall of the Berlin Wall.",
+      author: "Elena Marchetti",
+      authorInitials: "EM",
+      authorColor: "#c9a84c",
+      authorRole: "Foreign Affairs Editor",
+      date: "27 Feb 2026",
+      readTime: "14 min read",
+      bgGradient: "linear-gradient(135deg, #0a0a0a 0%, #1c0a08 40%, #0f1a2e 100%)",
+      tags: ["Geopolitics", "World Order", "Diplomacy", "Alliances", "Global Affairs"],
+      content: `
+        <p class="drop-cap">For the first time since the Cold War ended, the fundamental architecture of global power is being rebuilt in real time. Old certainties are dissolving. New coalitions are forming. And the speed at which this transformation is occurring has left even seasoned diplomats struggling to keep pace.</p>
+
+        <p>The past eighteen months have seen a cascade of events that individually might seem manageable, but taken together represent something far more significant — a structural shift in how nations relate to one another, who they trust, and what they stand for.</p>
+
+        <h2>The Fracturing of the Post-War Consensus</h2>
+
+        <p>Since 1945, the international order rested on a set of shared assumptions: that democracy and free markets were the endpoints of history, that multilateral institutions could resolve disputes, and that the United States would serve as the ultimate guarantor of stability. Each of these pillars is now under pressure.</p>
+
+        <blockquote>"What we are witnessing is not a crisis of the international order — it is the order itself transforming into something we do not yet have words to describe." — Dr. Amara Osei, Princeton Institute for Global Affairs</blockquote>
+
+        <p>The shift is visible in the data. Trade between traditional Western allies has grown at just 1.2% annually over the past three years, while South-South trade — transactions between developing nations — has surged by 18%. Supply chains once anchored in globalization are being redrawn along political lines.</p>
+
+        <h2>New Coalitions Rising</h2>
+
+        <p>Perhaps the most striking development is the emergence of what analysts are calling "flexible alignment" — nations that refuse to be permanently anchored to any single bloc. India is the clearest example. It maintains deep defence ties with the United States, purchases Russian oil at discounted rates, and leads a coalition of African nations pushing for reform of the UN Security Council.</p>
+
+        <div class="article-image">
+          <div class="article-image-inner">
+            <div class="article-image-bg" style="background: linear-gradient(135deg, #0a0a0a, #1c2e3a, #c0392b);">WORLD</div>
+          </div>
+          <div class="article-image-caption">World leaders at the emergency G20 summit — Feb 2026 (Illustration)</div>
+        </div>
+
+        <p>This flexibility is not weakness. It is strategy. Nations that once had to choose sides in a binary world are discovering that in a multipolar one, leverage comes from keeping options open.</p>
+
+        <h2>What Comes Next</h2>
+
+        <p>The honest answer is that no one knows. The models that political scientists used to predict international behaviour were built for a world that no longer exists. New frameworks are being constructed, but they remain incomplete.</p>
+
+        <p>What is clear is that the decisions made in the next five years — on trade architecture, on security guarantees, on the governance of artificial intelligence and climate — will shape the international order for decades to come. The rewiring has begun. The question is who gets to hold the blueprint.</p>
+      `
+    },
+    tech1: {
+      title: "OpenAI's New Model Passes the Bar Exam With 97th Percentile Score",
+      titleFormatted: "OpenAI's New Model Passes the Bar Exam With <em>97th Percentile</em> Score",
+      category: "Technology",
+      deck: "The latest AI model from OpenAI has achieved a score placing it in the 97th percentile of human bar exam takers, reigniting debate about AI's role in professional services.",
+      author: "Aiko Yamamoto",
+      authorInitials: "AY",
+      authorColor: "#3b82f6",
+      authorRole: "Technology Correspondent",
+      date: "27 Feb 2026",
+      readTime: "6 min read",
+      bgGradient: "linear-gradient(135deg, #001a0a 0%, #003320 40%, #001a10 100%)",
+      tags: ["OpenAI", "Artificial Intelligence", "Law", "Technology", "Future of Work"],
+      content: `
+        <p class="drop-cap">In a development that has sent ripples through both the technology and legal industries, OpenAI's latest large language model has achieved a score on the Uniform Bar Examination that places it firmly in the 97th percentile — meaning it outperformed 97 out of every 100 human test-takers.</p>
+
+        <p>The result, independently verified by the National Conference of Bar Examiners, represents a dramatic leap from just two years ago, when AI models were struggling to pass the exam at all.</p>
+
+        <h2>What the Score Actually Means</h2>
+
+        <p>The Uniform Bar Examination is widely considered one of the most rigorous professional licensing tests in the world. It tests not just knowledge of law, but the ability to reason through novel fact patterns, construct coherent arguments, and apply legal principles to ambiguous situations.</p>
+
+        <blockquote>"This is not a test of memorisation. The fact that the model performed at this level on the essay portions is what truly surprised us." — Prof. Rachel Kim, Stanford Law School</blockquote>
+
+        <p>Legal experts have been quick to caution against over-interpretation. Passing a bar exam is not the same as practising law effectively. The human dimensions of legal work — client relationships, courtroom presence, ethical judgment under pressure — remain beyond current AI capabilities.</p>
+
+        <h2>The Industry Responds</h2>
+
+        <p>Major law firms have responded cautiously but attentively. Several of the world's largest practices have already deployed earlier AI models for document review and legal research. The new benchmark will accelerate those conversations considerably.</p>
+
+        <div class="article-image">
+          <div class="article-image-inner">
+            <div class="article-image-bg" style="background: linear-gradient(135deg, #001a0a, #003320, #34d399);">AI</div>
+          </div>
+          <div class="article-image-caption">AI legal tools are rapidly transforming how law firms operate (Illustration)</div>
+        </div>
+
+        <p>For now, the consensus is that AI will transform legal work rather than replace lawyers entirely. The tasks most at risk are the most time-consuming and least valued by clients — document review, basic contract drafting, legal research — freeing human lawyers to focus on higher-value work.</p>
+      `
+    },
+    climate1: {
+      title: "Antarctic Ice Sheet Loss Accelerates to Record Levels, Scientists Warn",
+      titleFormatted: "Antarctic Ice Sheet Loss Accelerates to <em>Record Levels</em>, Scientists Warn",
+      category: "Climate",
+      deck: "New satellite data shows the West Antarctic Ice Sheet is losing mass at a rate 40% faster than projections made just five years ago, with profound implications for global sea levels.",
+      author: "Sofia Alonzo",
+      authorInitials: "SA",
+      authorColor: "#4ade80",
+      authorRole: "Climate Correspondent",
+      date: "27 Feb 2026",
+      readTime: "8 min read",
+      bgGradient: "linear-gradient(135deg, #001a14 0%, #003d28 40%, #001a0a 100%)",
+      tags: ["Climate", "Antarctica", "Sea Level", "Environment", "Science"],
+      content: `
+        <p class="drop-cap">Scientists tracking the West Antarctic Ice Sheet have issued their most alarming assessment to date, warning that the rate of ice mass loss has accelerated to levels that exceed even the most pessimistic models published in 2021. The implications for coastal communities worldwide are severe and, in some scenarios, irreversible.</p>
+
+        <p>New data from the CryoSat-3 satellite mission, cross-referenced with ground-based measurements from 47 monitoring stations, shows the ice sheet losing an average of 312 billion tonnes per year — a 40% increase over the 2019–2021 baseline.</p>
+
+        <h2>The Thwaites Factor</h2>
+
+        <p>At the centre of scientists' concern is the Thwaites Glacier, which researchers have long called the "doomsday glacier" due to its potential to trigger a cascade of ice loss across the broader West Antarctic Ice Sheet. New underwater surveys show warm ocean water penetrating the glacier's grounding line at rates not expected until the 2040s.</p>
+
+        <blockquote>"We are decades ahead of our worst-case scenario for Thwaites. This is no longer a future problem. It is a present one." — Dr. James Okafor, British Antarctic Survey</blockquote>
+
+        <div class="article-image">
+          <div class="article-image-inner">
+            <div class="article-image-bg" style="background: linear-gradient(135deg, #001a14, #003d28, #4ade80);">ICE</div>
+          </div>
+          <div class="article-image-caption">Aerial view of Antarctic ice shelf calving event, January 2026 (Illustration)</div>
+        </div>
+
+        <h2>What It Means for Sea Levels</h2>
+
+        <p>If current trends continue, the West Antarctic Ice Sheet alone could contribute between 0.5 and 1.2 metres of sea level rise by 2100. Combined with contributions from Greenland and thermal expansion of warming oceans, total sea level rise could reach 2 metres in high-emission scenarios.</p>
+
+        <p>At two metres, an estimated 630 million people currently living in low-lying coastal areas would face regular flooding or permanent inundation. Major cities including Miami, Mumbai, Shanghai, Amsterdam and Jakarta would require extraordinary adaptation measures to remain habitable.</p>
+      `
+    },
+    politics1: {
+      title: "Senate Passes Landmark Digital Privacy Act in 78–22 Bipartisan Vote",
+      titleFormatted: "Senate Passes <em>Landmark</em> Digital Privacy Act in 78–22 Bipartisan Vote",
+      category: "Politics",
+      deck: "The American Data Protection and Privacy Act represents the most significant federal privacy legislation in US history, giving citizens unprecedented control over their personal data.",
+      author: "Marcus Webb",
+      authorInitials: "MW",
+      authorColor: "#7eb8f7",
+      authorRole: "Washington Correspondent",
+      date: "27 Feb 2026",
+      readTime: "5 min read",
+      bgGradient: "linear-gradient(135deg, #0a0a14 0%, #0d1f3c 40%, #1a0a30 100%)",
+      tags: ["Politics", "Privacy", "Senate", "Technology Law", "Digital Rights"],
+      content: `
+        <p class="drop-cap">In a rare display of bipartisan cooperation, the United States Senate passed the American Data Protection and Privacy Act by a decisive 78-to-22 margin on Thursday, sending the most comprehensive federal privacy legislation in the nation's history to the President's desk for signature.</p>
+
+        <p>The bill, which had stalled in various forms for over a decade, establishes sweeping new rights for American citizens over their personal data, imposes strict obligations on companies that collect and process that data, and creates a new federal enforcement agency — the Digital Privacy Bureau — with broad investigative and punitive powers.</p>
+
+        <h2>What the Law Does</h2>
+
+        <p>At its core, the Act gives Americans the right to know what data is collected about them, the right to have that data deleted, the right to opt out of its sale to third parties, and the right to sue companies that violate these protections. Critically, it establishes a private right of action — meaning individuals, not just regulators, can take companies to court.</p>
+
+        <blockquote>"For too long, Americans have been the product, not the customer. This law begins to change that fundamental imbalance." — Senator Priya Nair (D-CA), lead sponsor</blockquote>
+
+        <p>Companies with more than $25 million in annual revenue or that process data on more than 100,000 individuals will be subject to the full provisions of the Act. Violations can result in fines of up to $10,000 per affected individual per day — a figure that could reach into the billions for large-scale breaches.</p>
+
+        <h2>Industry Reaction</h2>
+
+        <p>The technology industry's response has been notably muted compared to previous legislative attempts. Several major companies, including Apple and Microsoft, have publicly supported the bill, calculating that federal preemption of the current patchwork of state privacy laws represents a more manageable compliance environment.</p>
+
+        <div class="article-image">
+          <div class="article-image-inner">
+            <div class="article-image-bg" style="background: linear-gradient(135deg, #0a0a14, #0d1f3c, #3b82f6);">VOTE</div>
+          </div>
+          <div class="article-image-caption">The Senate chamber during the historic privacy vote, Feb 27, 2026 (Illustration)</div>
+        </div>
+
+        <p>Meta, Google and several advertising technology companies have pledged to challenge portions of the Act in court, arguing that certain provisions violate First Amendment protections for commercial speech. Legal analysts give those challenges mixed odds of success.</p>
+      `
+    },
+    science1: {
+      title: "CRISPR Trial Shows 94% Efficacy in Reversing Early-Stage Alzheimer's",
+      titleFormatted: "CRISPR Trial Shows <em>94% Efficacy</em> in Reversing Early-Stage Alzheimer's",
+      category: "Science",
+      deck: "A landmark Phase III clinical trial involving 4,000 patients across 12 countries has produced results that could fundamentally change how neurodegenerative disease is treated.",
+      author: "Dr. James Okafor",
+      authorInitials: "JO",
+      authorColor: "#c084fc",
+      authorRole: "Science & Health Editor",
+      date: "27 Feb 2026",
+      readTime: "10 min read",
+      bgGradient: "linear-gradient(135deg, #100020 0%, #1a003a 40%, #0a0018 100%)",
+      tags: ["CRISPR", "Alzheimer's", "Gene Therapy", "Medicine", "Neuroscience"],
+      content: `
+        <p class="drop-cap">In what is being described by leading neurologists as the most significant medical breakthrough of the decade, a Phase III clinical trial of a CRISPR-based gene therapy has demonstrated 94% efficacy in halting and in many cases reversing the cognitive decline associated with early-stage Alzheimer's disease.</p>
+
+        <p>The trial, conducted across 47 research centres in 12 countries and involving 4,000 patients over three years, represents the largest and most rigorous study of gene therapy for a neurodegenerative condition ever undertaken.</p>
+
+        <h2>How the Treatment Works</h2>
+
+        <p>The therapy, developed by a consortium led by the Karolinska Institute in Stockholm, uses a modified CRISPR-Cas9 system delivered via engineered viral vectors to target and correct the genetic mutations most commonly associated with Alzheimer's progression. Specifically, it addresses the overproduction of amyloid-beta proteins that form the plaques characteristic of the disease.</p>
+
+        <blockquote>"We have been chasing amyloid for thirty years. This is the first intervention that doesn't just slow its accumulation — it appears to reverse it in a meaningful proportion of patients." — Prof. Yuki Tanaka, Karolinska Institute</blockquote>
+
+        <div class="article-image">
+          <div class="article-image-inner">
+            <div class="article-image-bg" style="background: linear-gradient(135deg, #100020, #1a003a, #c084fc);">DNA</div>
+          </div>
+          <div class="article-image-caption">CRISPR gene editing visualization — the technology behind the breakthrough (Illustration)</div>
+        </div>
+
+        <h2>The Results in Detail</h2>
+
+        <p>Of the 2,000 patients who received the active treatment, 94% showed no further cognitive decline over the 36-month study period. More remarkably, 67% demonstrated measurable improvement on standardised cognitive assessments — the first time any intervention has achieved cognitive improvement at scale in Alzheimer's patients.</p>
+
+        <p>The therapy appears most effective when administered in the earliest stages of the disease, before significant neuronal loss has occurred. In patients with moderate-stage Alzheimer's, efficacy dropped to 71% for halting decline and 23% for demonstrable improvement.</p>
+
+        <h2>What Happens Next</h2>
+
+        <p>Regulatory submissions to the FDA, EMA and equivalent bodies in 18 countries are expected within the next 60 days. If approved on an accelerated timeline — which trial investigators say they will request — the therapy could be available to patients in clinical settings within 18 months.</p>
+      `
+    },
+    business1: {
+      title: "NVIDIA Surpasses $4 Trillion Market Cap",
+      titleFormatted: "NVIDIA Surpasses <em>$4 Trillion</em> Market Cap — Most Valuable Company in History",
+      category: "Business",
+      deck: "Driven by insatiable global demand for AI accelerators, NVIDIA has become the first company to sustain a market capitalisation above $4 trillion for more than 30 consecutive trading days.",
+      author: "Reza Khalili",
+      authorInitials: "RK",
+      authorColor: "#c9a84c",
+      authorRole: "Economics Correspondent",
+      date: "27 Feb 2026",
+      readTime: "5 min read",
+      bgGradient: "linear-gradient(135deg, #1a1000 0%, #2c1f00 40%, #1a1000 100%)",
+      tags: ["NVIDIA", "Stock Market", "AI", "Business", "Technology"],
+      content: `
+        <p class="drop-cap">NVIDIA Corporation has crossed a threshold that no company in history has sustained — a market capitalisation consistently above $4 trillion — cementing its position as the most valuable enterprise ever created and reshaping our understanding of how quickly a company can accumulate economic value.</p>
+
+        <p>The milestone, reached during Thursday's trading session when NVIDIA shares closed at $1,847.32, reflects a stock that has risen 2,400% in three years — a gain fuelled almost entirely by the world's voracious appetite for artificial intelligence computing infrastructure.</p>
+
+        <h2>The AI Infrastructure Monopoly</h2>
+
+        <p>At the heart of NVIDIA's extraordinary valuation is a near-monopoly on the hardware that makes modern AI possible. The company's H100 and B200 GPU chips have become the essential raw material of the AI revolution, as indispensable to the technology industry as crude oil is to the global economy.</p>
+
+        <blockquote>"Jensen Huang has done something extraordinary — he turned a gaming chip company into the infrastructure layer of the entire AI economy. The comparison to Standard Oil is not hyperbolic." — Analyst Sarah Chen, Morgan Stanley</blockquote>
+
+        <div class="article-image">
+          <div class="article-image-inner">
+            <div class="article-image-bg" style="background: linear-gradient(135deg, #1a1000, #2c1f00, #c9a84c);">GPU</div>
+          </div>
+          <div class="article-image-caption">NVIDIA's H100 chips power the majority of the world's AI data centres (Illustration)</div>
+        </div>
+
+        <h2>Can It Continue?</h2>
+
+        <p>The question every investor and analyst is wrestling with is whether NVIDIA's dominance is durable or whether it represents the peak of a cycle. Bears point to the extraordinary margins — currently above 70% — as unsustainable, and note that AMD, Intel and a wave of custom silicon projects from Google, Amazon and Meta all threaten to erode NVIDIA's monopoly over time.</p>
+
+        <p>Bulls counter that NVIDIA's lead is not just in hardware but in software — specifically in the CUDA programming ecosystem that millions of AI researchers and engineers have spent years mastering. Switching costs are enormous, and growing.</p>
+      `
+    },
+    culture1: {
+      title: "How Hollywood Lost the Plot — And What Comes After the Streaming Wars",
+      titleFormatted: "How Hollywood <em>Lost the Plot</em> — And What Comes After the Streaming Wars",
+      category: "Culture",
+      deck: "Theatrical attendance is rebounding, but the studios that survive will look nothing like the ones that dominated the last decade of content production.",
+      author: "Priya Nambiar",
+      authorInitials: "PN",
+      authorColor: "#fb7185",
+      authorRole: "Culture Editor",
+      date: "27 Feb 2026",
+      readTime: "12 min read",
+      bgGradient: "linear-gradient(135deg, #1a000a 0%, #38001a 40%, #1a0008 100%)",
+      tags: ["Hollywood", "Streaming", "Cinema", "Entertainment", "Culture"],
+      content: `
+        <p class="drop-cap">The streaming wars are over. The survivors are limping. The casualties are being picked over. And in the wreckage, something unexpected is happening: people are going back to the cinema.</p>
+
+        <p>Not in the numbers of 2019, not yet. But the trajectory is clear, and it is reshaping the economics of an industry that spent the past decade betting everything on the idea that audiences would be content to watch whatever an algorithm recommended on a screen in their living rooms.</p>
+
+        <h2>The Great Miscalculation</h2>
+
+        <p>The miscalculation was breathtaking in scale. Between 2019 and 2023, the major studios collectively spent over $150 billion building streaming platforms, acquiring content libraries and funding original productions. The bet was simple: if you could lock subscribers in with enough content, you could build a subscription business that would eventually replace the unpredictable economics of the theatrical release model.</p>
+
+        <blockquote>"The studios confused activity with strategy. More content was not better content. Audiences noticed." — Matthew Belloni, The Town</blockquote>
+
+        <div class="article-image">
+          <div class="article-image-inner">
+            <div class="article-image-bg" style="background: linear-gradient(135deg, #1a000a, #38001a, #fb7185);">FILM</div>
+          </div>
+          <div class="article-image-caption">The return of the cinematic experience — audiences seek what streaming cannot replicate (Illustration)</div>
+        </div>
+
+        <h2>What Audiences Actually Want</h2>
+
+        <p>The answer, it turns out, is events. Films that feel like occasions. Stories that demand to be experienced collectively, on the largest screen possible, with the full sensory apparatus of a cinema working in their service. The blockbusters that have driven the theatrical recovery share one characteristic above all others: they were designed to be seen in a cinema, not merely available on one.</p>
+
+        <p>This sounds obvious in retrospect. But for five years, the industry largely forgot it. The studios retrained their creative instincts toward the small screen — toward serialised storytelling, intimate drama, prestige television aesthetics. And they produced a great deal of excellent work in those formats. What they lost was the ability to make movies that felt like movies.</p>
+
+        <h2>The Studios That Will Survive</h2>
+
+        <p>The studios best positioned for what comes next are those that maintained clarity about what cinema is for, even during the peak streaming frenzy. They are not necessarily the largest — several mid-sized studios have proven far more agile than their corporate parents. What they share is a commitment to theatrical event filmmaking as a distinct art form with its own economics and its own audience psychology.</p>
+      `
+    },
+    science2: {
+      title: "NASA's Artemis V Crew Confirmed — First Lunar Base Module Arrives in 2027",
+      titleFormatted: "NASA's Artemis V Crew Confirmed — First <em>Lunar Base Module</em> Arrives in 2027",
+      category: "Space",
+      deck: "The agency has named its five-person crew for the mission that will see humans return to the lunar surface for an extended 30-day stay.",
+      author: "Sofia Alonzo",
+      authorInitials: "SA",
+      authorColor: "#60a5fa",
+      authorRole: "Science Correspondent",
+      date: "27 Feb 2026",
+      readTime: "7 min read",
+      bgGradient: "linear-gradient(135deg, #050510 0%, #0a0a2e 40%, #050520 100%)",
+      tags: ["NASA", "Moon", "Artemis", "Space", "Science"],
+      content: `
+        <p class="drop-cap">NASA has formally confirmed the five-member crew for the Artemis V mission, the most ambitious human spaceflight operation since the Apollo programme, which will see astronauts spend 30 consecutive days on the lunar surface — and lay the groundwork for the first permanent human presence beyond Earth.</p>
+
+        <p>The crew, announced at a ceremony at Johnson Space Centre in Houston, comprises Commander Dr. Valentina Rossi, pilot Major James Osei, mission specialists Dr. Yuki Nakamura and Dr. Amara Diallo, and payload specialist Dr. Carlos Herrera — representing five nationalities across three continents.</p>
+
+        <h2>The Mission Profile</h2>
+
+        <p>Artemis V represents a fundamental departure from the brief surface excursions of Artemis III and IV. Rather than landing, conducting limited EVAs and returning to orbit, the Artemis V crew will occupy the Lunar Gateway station for the first week of their mission before descending to the lunar south pole in the upgraded Starship Human Landing System.</p>
+
+        <blockquote>"Thirty days. That is how long we will live and work on the Moon. When we come home, we will know things about human lunar habitation that no textbook can teach us." — Commander Dr. Valentina Rossi</blockquote>
+
+        <div class="article-image">
+          <div class="article-image-inner">
+            <div class="article-image-bg" style="background: linear-gradient(135deg, #050510, #0a0a2e, #60a5fa);">MOON</div>
+          </div>
+          <div class="article-image-caption">Artist's rendering of the Artemis lunar base module deployment (NASA / Illustration)</div>
+        </div>
+
+        <h2>The Lunar Base Module</h2>
+
+        <p>Perhaps more significant than the crewed mission itself is the confirmed delivery schedule for the first Lunar Base Module — a pressurised habitat unit developed jointly by NASA, ESA and JAXA — which will be delivered to the lunar surface via an uncrewed cargo mission in the third quarter of 2027.</p>
+
+        <p>The module, roughly the size of a shipping container, will provide 42 cubic metres of pressurised living and working space, along with power generation, life support and communications infrastructure sufficient to support a crew of four for up to six months.</p>
+      `
+    }
+  };
+
+  // ===== LOAD ARTICLE FROM URL PARAMS =====
+  function loadArticle(id) {
+    const article = articles[id];
+    if (!article) return;
+
+    // Update URL without reload
+    window.history.pushState({articleId: id}, '', `article.html?id=${id}`);
+
+    // Update page title
+    document.title = `${article.title} — Prime Headlines`;
+
+    // Update hero
+    document.getElementById('articleHeroBg').style.background = article.bgGradient;
+    document.getElementById('articleCategory').textContent = article.category;
+    document.getElementById('articleTitle').innerHTML = article.titleFormatted;
+    document.getElementById('articleDeck').textContent = article.deck;
+    document.getElementById('authorName').textContent = `By ${article.author}`;
+    document.getElementById('authorRole').textContent = article.authorRole;
+    document.getElementById('articleDate').textContent = article.date;
+    document.getElementById('articleReadTime').textContent = article.readTime;
+
+    // Author avatar
+    const avatar = document.getElementById('authorAvatar');
+    avatar.textContent = article.authorInitials;
+    avatar.style.background = article.authorColor;
+
+    // Article content
+    document.getElementById('articleContent').innerHTML = article.content;
+
+    // Tags
+    const tagsHtml = article.tags.map(t => `<span class="tag">${t}</span>`).join('');
+    document.getElementById('articleTags').innerHTML = tagsHtml;
+
+    // Scroll to top
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // Go back to homepage
+  function goBack() {
+    window.location.href = 'index.html';
+  }
+
+  // Share article
+  function shareArticle() {
+    if (navigator.share) {
+      navigator.share({
+        title: document.title,
+        url: window.location.href
+      });
+    } else {
+      copyLink();
+    }
+  }
+
+  function copyLink() {
+    navigator.clipboard.writeText(window.location.href).then(() => {
+      alert('Link copied to clipboard!');
+    });
+  }
+
+  // Load article on page load
+  window.addEventListener('load', () => {
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get('id') || 'world1';
+    loadArticle(id);
+  });
+
+  // Reading progress bar
+  window.addEventListener('scroll', () => {
+    const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+    const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+    const scrolled = (winScroll / height) * 100;
+    document.getElementById('readingProgress').style.width = scrolled + '%';
+  });
+
+  // Custom cursor
+  const cursor = document.getElementById('cursor');
+  const cursorRing = document.getElementById('cursorRing');
+  let mouseX = 0, mouseY = 0, ringX = 0, ringY = 0;
+
+  document.addEventListener('mousemove', (e) => {
+    mouseX = e.clientX; mouseY = e.clientY;
+    cursor.style.left = mouseX + 'px';
+    cursor.style.top = mouseY + 'px';
+  });
+
+  function animateRing() {
+    ringX += (mouseX - ringX) * 0.12;
+    ringY += (mouseY - ringY) * 0.12;
+    cursorRing.style.left = ringX + 'px';
+    cursorRing.style.top = ringY + 'px';
+    requestAnimationFrame(animateRing);
+  }
+  animateRing();
+</script>
+</body>
+</html>
