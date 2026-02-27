@@ -1,0 +1,1707 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prime Headlines — The News Front</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0a0a0a;
+    --paper: #e0f4ff;
+    --cream: #c8eaf8;
+    --red: #c0392b;
+    --gold: #c9a84c;
+    --muted: #7a7468;
+    --border: rgba(10,10,10,0.12);
+  }
+
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'DM Sans', sans-serif;
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* Custom Cursor */
+  .cursor {
+    position: fixed;
+    width: 12px; height: 12px;
+    background: var(--red);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-50%, -50%);
+    transition: transform 0.1s, width 0.2s, height 0.2s, background 0.2s;
+    mix-blend-mode: multiply;
+  }
+  .cursor-ring {
+    position: fixed;
+    width: 36px; height: 36px;
+    border: 1.5px solid var(--ink);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9998;
+    transform: translate(-50%, -50%);
+    transition: transform 0.18s ease, width 0.2s, height 0.2s;
+  }
+  body:hover .cursor { opacity: 1; }
+
+  /* Noise Texture Overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9000;
+    opacity: 0.5;
+  }
+
+  /* ===== MASTHEAD ===== */
+  .masthead {
+    border-bottom: 3px double var(--ink);
+    padding: 0 40px;
+    position: sticky;
+    top: 0;
+    background: var(--paper);
+    z-index: 100;
+  }
+
+  .masthead-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 0 6px;
+    border-bottom: 1px solid var(--border);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+  }
+
+  .live-indicator {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--red);
+    font-weight: 500;
+  }
+  .live-dot {
+    width: 7px; height: 7px;
+    background: var(--red);
+    border-radius: 50%;
+    animation: pulse 1.5s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.7); }
+  }
+
+  .masthead-logo {
+    text-align: center;
+    padding: 14px 0 10px;
+  }
+  .logo-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 52px;
+    font-weight: 900;
+    letter-spacing: -2px;
+    line-height: 1;
+    color: var(--ink);
+    text-transform: none;
+    position: relative;
+    display: inline-block;
+  }
+  .logo-name::after {
+    content: 'EST. 2025';
+    position: absolute;
+    bottom: 4px;
+    right: -68px;
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    font-weight: 400;
+  }
+  .logo-tagline {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+
+  .masthead-nav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    border-top: 1px solid var(--border);
+    padding: 8px 0;
+    overflow-x: auto;
+  }
+  .nav-item {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink);
+    text-decoration: none;
+    padding: 5px 18px;
+    position: relative;
+    transition: color 0.2s;
+  }
+  .nav-item::after {
+    content: '·';
+    position: absolute;
+    right: 0;
+    color: var(--border);
+    transform: translateX(50%);
+  }
+  .nav-item:last-child::after { display: none; }
+  .nav-item:hover { color: var(--red); }
+  .nav-item.active {
+    color: var(--red);
+    font-weight: 500;
+  }
+
+  /* ===== TICKER ===== */
+  .ticker-wrap {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 7px 0;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+  }
+  .ticker-label {
+    background: var(--red);
+    color: #fff;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    padding: 3px 14px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    text-transform: uppercase;
+    font-weight: 500;
+  }
+  .ticker-track {
+    display: flex;
+    animation: ticker 40s linear infinite;
+    white-space: nowrap;
+  }
+  .ticker-track:hover { animation-play-state: paused; }
+  .ticker-item {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    padding: 0 40px;
+    color: #ccc;
+    letter-spacing: 0.05em;
+  }
+  .ticker-item span { color: var(--gold); margin-right: 8px; }
+  @keyframes ticker {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+
+  /* ===== MAIN LAYOUT ===== */
+  .container { max-width: 1300px; margin: 0 auto; padding: 0 40px; }
+
+  /* ===== HERO SECTION ===== */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes heroReveal {
+    from { opacity: 0; transform: translateY(40px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes bgShift {
+    0%   { background-position: 0% 60%; }
+    50%  { background-position: 100% 40%; }
+    100% { background-position: 0% 60%; }
+  }
+
+  /* Category filter tabs */
+  .hero-filter-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 20px 0 0;
+    flex-wrap: wrap;
+  }
+  .filter-tab {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 6px 16px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    outline: none;
+  }
+  .filter-tab:hover {
+    border-color: var(--ink);
+    color: var(--ink);
+    background: var(--cream);
+  }
+  .filter-tab.active {
+    background: var(--ink);
+    color: var(--paper);
+    border-color: var(--ink);
+  }
+
+  /* Hero stage */
+  .hero {
+    padding: 0;
+    border-bottom: 2px solid var(--ink);
+  }
+
+  .hero-stage {
+    position: relative;
+    min-height: 580px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  /* Animated background */
+  .hero-bg {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, #0a0a0a 0%, #1c0a08 25%, #0f1a2e 50%, #1a0f08 75%, #0a0a14 100%);
+    background-size: 400% 400%;
+    animation: bgShift 14s ease infinite;
+    z-index: 0;
+  }
+  .hero-bg::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at 20% 80%, rgba(192,57,43,0.35) 0%, transparent 55%),
+      radial-gradient(ellipse at 80% 15%, rgba(201,168,76,0.25) 0%, transparent 45%),
+      radial-gradient(ellipse at 55% 55%, rgba(15,52,96,0.4) 0%, transparent 50%);
+  }
+  .hero-bg::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E");
+    opacity: 0.4;
+  }
+
+  /* Big decorative background word */
+  .hero-bg-word {
+    position: absolute;
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(120px, 18vw, 260px);
+    font-weight: 900;
+    color: rgba(255,255,255,0.025);
+    letter-spacing: -10px;
+    user-select: none;
+    pointer-events: none;
+    z-index: 1;
+    line-height: 1;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    white-space: nowrap;
+  }
+
+  /* Hero content */
+  .hero-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    max-width: 880px;
+    padding: 64px 40px;
+    animation: heroReveal 1s ease both;
+  }
+
+  .hero-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 22px;
+  }
+  .hero-eyebrow::before,
+  .hero-eyebrow::after {
+    content: '';
+    display: block;
+    width: 32px;
+    height: 1px;
+    background: var(--gold);
+    opacity: 0.6;
+  }
+
+  .hero-headline {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(38px, 5.5vw, 68px);
+    font-weight: 900;
+    line-height: 1.07;
+    letter-spacing: -2px;
+    color: #f5f0e8;
+    margin-bottom: 22px;
+    text-shadow: 0 4px 32px rgba(0,0,0,0.5);
+  }
+  .hero-headline em {
+    font-style: italic;
+    color: var(--gold);
+  }
+
+  .hero-deck {
+    font-size: 17px;
+    line-height: 1.7;
+    color: rgba(245,240,232,0.65);
+    font-weight: 300;
+    max-width: 640px;
+    margin: 0 auto 28px;
+  }
+
+  .hero-actions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+
+  .hero-meta {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: rgba(245,240,232,0.4);
+    letter-spacing: 0.08em;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 24px;
+  }
+  .hero-meta .byline { color: rgba(245,240,232,0.8); font-weight: 500; }
+
+  .read-more-hero {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    background: var(--red);
+    color: #fff;
+    text-decoration: none;
+    padding: 12px 28px;
+    transition: background 0.2s, transform 0.2s;
+  }
+  .read-more-hero:hover { background: #a93226; transform: translateY(-2px); }
+  .read-more-hero::after { content: '→'; font-size: 14px; }
+
+  .read-more-ghost {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    background: transparent;
+    color: rgba(245,240,232,0.7);
+    text-decoration: none;
+    padding: 11px 28px;
+    border: 1px solid rgba(245,240,232,0.25);
+    transition: all 0.2s;
+  }
+  .read-more-ghost:hover {
+    border-color: rgba(245,240,232,0.7);
+    color: #fff;
+  }
+
+  /* Mini story cards below hero */
+  .hero-cards {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    border-top: 1px solid rgba(255,255,255,0.08);
+    position: relative;
+    z-index: 2;
+  }
+  .hero-card {
+    padding: 20px 24px;
+    border-right: 1px solid rgba(255,255,255,0.08);
+    cursor: pointer;
+    transition: background 0.2s;
+    background: rgba(10,10,10,0.6);
+    backdrop-filter: blur(4px);
+  }
+  .hero-card:last-child { border-right: none; }
+  .hero-card:hover { background: rgba(192,57,43,0.15); }
+
+  .hero-card .category-tag { color: var(--gold); margin-bottom: 6px; }
+  .hero-card-headline {
+    font-family: 'Playfair Display', serif;
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1.35;
+    color: rgba(245,240,232,0.9);
+    letter-spacing: -0.2px;
+    transition: color 0.2s;
+  }
+  .hero-card:hover .hero-card-headline { color: #fff; }
+  .hero-card-meta {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: rgba(245,240,232,0.3);
+    margin-top: 8px;
+    letter-spacing: 0.05em;
+  }
+
+  /* Filtered content panels */
+  .hero-panel { display: none; }
+  .hero-panel.active { display: block; }
+
+  .category-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--red);
+    font-weight: 500;
+    margin-bottom: 12px;
+  }
+
+  .lead-meta {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    margin-bottom: 24px;
+  }
+  .lead-meta .byline { color: var(--ink); font-weight: 500; }
+
+  /* keep read-more for rest of page */
+  .read-more {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink);
+    text-decoration: none;
+    border-bottom: 1px solid var(--ink);
+    padding-bottom: 2px;
+    transition: color 0.2s, border-color 0.2s;
+  }
+  .read-more:hover { color: var(--red); border-color: var(--red); }
+  .read-more::after { content: '→'; font-size: 13px; }
+
+  /* Sidebar styles kept for other sections */
+  .sidebar-story {
+    padding: 20px 0;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+  }
+  .sidebar-story:last-child { border-bottom: none; }
+  .sidebar-headline {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 1.3;
+    letter-spacing: -0.3px;
+    margin-bottom: 8px;
+    transition: color 0.2s;
+  }
+  .sidebar-story:hover .sidebar-headline { color: var(--red); }
+  .sidebar-meta {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.05em;
+  }
+
+  /* ===== SECTION HEADER ===== */
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    padding: 32px 0 20px;
+    border-bottom: 2px solid var(--ink);
+    margin-bottom: 28px;
+  }
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+  .section-line {
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+  .section-link {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    text-decoration: none;
+    text-transform: uppercase;
+    transition: color 0.2s;
+  }
+  .section-link:hover { color: var(--red); }
+
+  /* ===== GRID STORIES ===== */
+  .stories-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0;
+    border: 1px solid var(--border);
+    margin-bottom: 40px;
+  }
+  .grid-story {
+    padding: 24px;
+    border-right: 1px solid var(--border);
+    cursor: pointer;
+    transition: background 0.2s;
+    animation: fadeUp 0.7s ease both;
+  }
+  .grid-story:nth-child(1) { animation-delay: 0.05s; }
+  .grid-story:nth-child(2) { animation-delay: 0.1s; }
+  .grid-story:nth-child(3) { animation-delay: 0.15s; }
+  .grid-story:nth-child(4) { animation-delay: 0.2s; }
+  .grid-story:last-child { border-right: none; }
+  .grid-story:hover { background: var(--cream); }
+
+  .grid-story .story-number {
+    font-family: 'Playfair Display', serif;
+    font-size: 48px;
+    font-weight: 900;
+    color: var(--border);
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+
+  .grid-headline {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 1.35;
+    letter-spacing: -0.2px;
+    margin-bottom: 10px;
+    transition: color 0.2s;
+  }
+  .grid-story:hover .grid-headline { color: var(--red); }
+
+  .grid-excerpt {
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--muted);
+    font-weight: 300;
+    margin-bottom: 14px;
+  }
+
+  /* ===== MAGAZINE ROW ===== */
+  .magazine-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 0;
+    border: 1px solid var(--border);
+    margin-bottom: 40px;
+  }
+  .mag-featured {
+    padding: 0;
+    border-right: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+    min-height: 360px;
+    cursor: pointer;
+  }
+  .mag-bg {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, #0a0a0a 0%, #1a0a00 50%, #2c1a00 100%);
+    transition: transform 0.5s ease;
+  }
+  .mag-featured:hover .mag-bg { transform: scale(1.03); }
+  .mag-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.9) 40%, rgba(0,0,0,0.1) 100%);
+  }
+  .mag-content {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 28px;
+    color: #fff;
+  }
+  .mag-content .category-tag { color: var(--gold); margin-bottom: 10px; }
+  .mag-headline {
+    font-family: 'Playfair Display', serif;
+    font-size: 30px;
+    font-weight: 900;
+    line-height: 1.15;
+    letter-spacing: -0.8px;
+    margin-bottom: 12px;
+  }
+  .mag-deck {
+    font-size: 13px;
+    line-height: 1.6;
+    color: rgba(255,255,255,0.7);
+    font-weight: 300;
+  }
+
+  .mag-stack { }
+  .mag-stack-item {
+    padding: 22px 24px;
+    border-bottom: 1px solid var(--border);
+    border-left: 1px solid var(--border);
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .mag-stack-item:last-child { border-bottom: none; }
+  .mag-stack-item:hover { background: var(--cream); }
+  .mag-stack-headline {
+    font-family: 'Playfair Display', serif;
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.4;
+    letter-spacing: -0.2px;
+    margin-bottom: 8px;
+    transition: color 0.2s;
+  }
+  .mag-stack-item:hover .mag-stack-headline { color: var(--red); }
+
+  /* ===== OPINION STRIP ===== */
+  .opinion-strip {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 36px 40px;
+    margin-bottom: 40px;
+  }
+  .opinion-strip .section-header {
+    border-bottom-color: rgba(255,255,255,0.15);
+    padding-top: 0;
+  }
+  .opinion-strip .section-title { color: var(--gold); }
+  .opinion-strip .section-line { background: rgba(255,255,255,0.1); }
+  .opinion-strip .section-link { color: rgba(255,255,255,0.4); }
+
+  .opinion-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 32px;
+  }
+  .opinion-card { cursor: pointer; }
+  .opinion-avatar {
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--ink);
+  }
+  .opinion-author {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    color: var(--gold);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+  }
+  .opinion-headline {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    font-weight: 700;
+    font-style: italic;
+    line-height: 1.35;
+    margin-bottom: 10px;
+    transition: color 0.2s;
+  }
+  .opinion-card:hover .opinion-headline { color: var(--gold); }
+  .opinion-excerpt {
+    font-size: 13px;
+    line-height: 1.6;
+    color: rgba(255,255,255,0.5);
+    font-weight: 300;
+  }
+
+  /* ===== DATA/MARKETS STRIP ===== */
+  .markets-bar {
+    background: var(--cream);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--gold);
+    padding: 16px 24px;
+    display: flex;
+    gap: 40px;
+    align-items: center;
+    margin-bottom: 40px;
+    overflow-x: auto;
+  }
+  .market-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .market-item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    white-space: nowrap;
+  }
+  .market-name {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+  .market-value {
+    font-family: 'DM Mono', monospace;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--ink);
+  }
+  .market-change {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+  }
+  .up { color: #27ae60; }
+  .down { color: var(--red); }
+
+  /* ===== BOTTOM SECTION ===== */
+  .bottom-grid {
+    display: grid;
+    grid-template-columns: 1fr 1px 320px;
+    gap: 0;
+    border-top: 2px solid var(--ink);
+    padding-top: 32px;
+    margin-bottom: 48px;
+  }
+
+  .latest-list { padding-right: 40px; }
+  .latest-item {
+    display: flex;
+    gap: 16px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    transition: background 0.15s;
+    align-items: flex-start;
+  }
+  .latest-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    padding-top: 3px;
+    flex-shrink: 0;
+    width: 20px;
+  }
+  .latest-content { flex: 1; }
+  .latest-headline {
+    font-family: 'Playfair Display', serif;
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.35;
+    letter-spacing: -0.2px;
+    margin-bottom: 4px;
+    transition: color 0.2s;
+  }
+  .latest-item:hover .latest-headline { color: var(--red); }
+  .latest-time {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+  }
+
+  /* Sidebar right */
+  .sidebar-right { padding-left: 40px; border-left: 1px solid var(--ink); }
+  .widget { margin-bottom: 32px; }
+
+  .newsletter-widget {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 24px;
+  }
+  .widget-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .widget-subtitle {
+    font-size: 12px;
+    color: rgba(255,255,255,0.5);
+    line-height: 1.5;
+    margin-bottom: 16px;
+  }
+  .newsletter-input {
+    width: 100%;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    color: var(--paper);
+    padding: 10px 14px;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    margin-bottom: 10px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .newsletter-input:focus { border-color: var(--gold); }
+  .newsletter-input::placeholder { color: rgba(255,255,255,0.3); }
+  .newsletter-btn {
+    width: 100%;
+    background: var(--red);
+    color: #fff;
+    border: none;
+    padding: 10px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .newsletter-btn:hover { background: #a93226; }
+
+  .trending-widget .widget-title-sm {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--ink);
+    margin-bottom: 14px;
+  }
+  .trending-item {
+    display: flex;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    align-items: flex-start;
+  }
+  .trending-rank {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 900;
+    color: var(--border);
+    line-height: 1;
+    flex-shrink: 0;
+    width: 24px;
+  }
+  .trending-headline {
+    font-family: 'Playfair Display', serif;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.35;
+    transition: color 0.2s;
+  }
+  .trending-item:hover .trending-headline { color: var(--red); }
+
+  /* ===== FOOTER ===== */
+  footer {
+    background: var(--ink);
+    color: rgba(255,255,255,0.6);
+    padding: 48px 40px 24px;
+  }
+  .footer-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    font-weight: 900;
+    color: #fff;
+    letter-spacing: -1px;
+    margin-bottom: 8px;
+  }
+  .footer-tagline {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: rgba(255,255,255,0.3);
+    text-transform: uppercase;
+    margin-bottom: 32px;
+  }
+  .footer-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 32px;
+    padding-bottom: 32px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    margin-bottom: 24px;
+  }
+  .footer-col-title {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+  .footer-links { list-style: none; }
+  .footer-links li {
+    margin-bottom: 8px;
+  }
+  .footer-links a {
+    color: rgba(255,255,255,0.45);
+    text-decoration: none;
+    font-size: 13px;
+    transition: color 0.2s;
+  }
+  .footer-links a:hover { color: #fff; }
+  .footer-bottom {
+    display: flex;
+    justify-content: space-between;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    color: rgba(255,255,255,0.2);
+  }
+
+  /* ===== SCROLL REVEAL ===== */
+  .reveal {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ===== READ MORE BTN ===== */
+  .read-more {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink);
+    text-decoration: none;
+    border-bottom: 1px solid var(--ink);
+    padding-bottom: 2px;
+    transition: color 0.2s, border-color 0.2s;
+  }
+  .read-more:hover { color: var(--red); border-color: var(--red); }
+  .read-more::after { content: '→'; font-size: 13px; }
+
+  @media (max-width: 1024px) {
+    .hero-grid { grid-template-columns: 1fr; }
+    .hero-divider { display: none; }
+    .stories-grid { grid-template-columns: repeat(2, 1fr); }
+    .opinion-grid { grid-template-columns: 1fr; gap: 24px; }
+    .magazine-row { grid-template-columns: 1fr; }
+    .footer-grid { grid-template-columns: repeat(2, 1fr); }
+    .bottom-grid { grid-template-columns: 1fr; }
+    .sidebar-right { border-left: none; border-top: 1px solid var(--ink); padding-left: 0; padding-top: 32px; margin-top: 32px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Custom Cursor -->
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- ===== MASTHEAD ===== -->
+<header class="masthead">
+  <div class="masthead-top">
+    <span id="dateDisplay">Friday, February 27, 2026</span>
+    <div class="live-indicator"><div class="live-dot"></div> Live Coverage</div>
+    <span>Edition No. 412</span>
+  </div>
+  <div class="masthead-logo">
+    <div class="logo-name">Prime Headlines</div>
+    <div class="logo-tagline">The World in Focus — Every Hour, Every Day</div>
+  </div>
+  <nav class="masthead-nav">
+    <a href="#" class="nav-item active">World</a>
+    <a href="#" class="nav-item">Politics</a>
+    <a href="#" class="nav-item">Business</a>
+    <a href="#" class="nav-item">Technology</a>
+    <a href="#" class="nav-item">Science</a>
+    <a href="#" class="nav-item">Culture</a>
+    <a href="#" class="nav-item">Opinion</a>
+    <a href="#" class="nav-item">Climate</a>
+    <a href="#" class="nav-item">Markets</a>
+  </nav>
+</header>
+
+<!-- ===== BREAKING TICKER ===== -->
+<div class="ticker-wrap">
+  <div class="ticker-label">Breaking</div>
+  <div class="ticker-track">
+    <span class="ticker-item"><span>▶</span>G20 leaders reach landmark climate financing deal worth $2.3 trillion over 10 years</span>
+    <span class="ticker-item"><span>▶</span>Federal Reserve holds rates steady amid mixed economic signals</span>
+    <span class="ticker-item"><span>▶</span>Scientists announce breakthrough in quantum computing achieving 1,000-qubit milestone</span>
+    <span class="ticker-item"><span>▶</span>Historic ceasefire agreement signed in three-year conflict — UN envoy confirms</span>
+    <span class="ticker-item"><span>▶</span>Apple unveils next-gen spatial computing platform, shares surge 8%</span>
+    <span class="ticker-item"><span>▶</span>WHO declares end to mpox global health emergency after 14-month response</span>
+    <!-- duplicate for seamless loop -->
+    <span class="ticker-item"><span>▶</span>G20 leaders reach landmark climate financing deal worth $2.3 trillion over 10 years</span>
+    <span class="ticker-item"><span>▶</span>Federal Reserve holds rates steady amid mixed economic signals</span>
+    <span class="ticker-item"><span>▶</span>Scientists announce breakthrough in quantum computing achieving 1,000-qubit milestone</span>
+    <span class="ticker-item"><span>▶</span>Historic ceasefire agreement signed in three-year conflict — UN envoy confirms</span>
+    <span class="ticker-item"><span>▶</span>Apple unveils next-gen spatial computing platform, shares surge 8%</span>
+    <span class="ticker-item"><span>▶</span>WHO declares end to mpox global health emergency after 14-month response</span>
+  </div>
+</div>
+
+<!-- ===== MARKETS BAR ===== -->
+<div class="container">
+  <div class="markets-bar">
+    <div class="market-label">Markets</div>
+    <div class="market-item">
+      <div class="market-name">S&P 500</div>
+      <div class="market-value">5,842.91</div>
+      <div class="market-change up">▲ +1.24%</div>
+    </div>
+    <div class="market-item">
+      <div class="market-name">NASDAQ</div>
+      <div class="market-value">18,340.65</div>
+      <div class="market-change down">▼ −0.37%</div>
+    </div>
+    <div class="market-item">
+      <div class="market-name">DOW</div>
+      <div class="market-value">43,109.22</div>
+      <div class="market-change up">▲ +0.89%</div>
+    </div>
+    <div class="market-item">
+      <div class="market-name">BTC/USD</div>
+      <div class="market-value">94,210.00</div>
+      <div class="market-change up">▲ +3.12%</div>
+    </div>
+    <div class="market-item">
+      <div class="market-name">EUR/USD</div>
+      <div class="market-value">1.0847</div>
+      <div class="market-change down">▼ −0.11%</div>
+    </div>
+    <div class="market-item">
+      <div class="market-name">Gold oz</div>
+      <div class="market-value">$2,891.40</div>
+      <div class="market-change up">▲ +0.54%</div>
+    </div>
+    <div class="market-item">
+      <div class="market-name">WTI Oil</div>
+      <div class="market-value">$71.82</div>
+      <div class="market-change down">▼ −1.08%</div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CATEGORY FILTER TABS ===== -->
+<div style="background: var(--paper); border-bottom: 1px solid var(--border);">
+  <div class="container">
+    <div class="hero-filter-bar">
+      <button class="filter-tab active" data-category="all">All Stories</button>
+      <button class="filter-tab" data-category="world">World</button>
+      <button class="filter-tab" data-category="politics">Politics</button>
+      <button class="filter-tab" data-category="technology">Technology</button>
+      <button class="filter-tab" data-category="business">Business</button>
+      <button class="filter-tab" data-category="science">Science</button>
+      <button class="filter-tab" data-category="climate">Climate</button>
+      <button class="filter-tab" data-category="culture">Culture</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== HERO SECTION ===== -->
+<section class="hero">
+
+  <!-- Panel: All / World -->
+  <div class="hero-panel active" id="panel-all">
+    <div class="hero-stage">
+      <div class="hero-bg"></div>
+      <div class="hero-bg-word">Prime Headlines</div>
+      <div class="hero-content">
+        <div class="hero-eyebrow">⬤ World — Lead Story</div>
+        <h1 class="hero-headline">The <em>Great Rewiring</em> of the Global Order Has Begun</h1>
+        <div class="hero-meta">
+          <span class="byline">By Elena Marchetti</span>
+          <span>·</span>
+          <span>27 Feb 2026</span>
+          <span>·</span>
+          <span>14 min read</span>
+        </div>
+        <p class="hero-deck">As old alliances fracture and new ones form across the Pacific and Atlantic, analysts say the geopolitical map is being redrawn at a speed unseen since the fall of the Berlin Wall.</p>
+        <div class="hero-actions">
+          <a href="#" class="read-more-hero">Read Full Report</a>
+          <a href="#" class="read-more-ghost">More World News</a>
+        </div>
+      </div>
+    </div>
+    <!-- Mini story cards -->
+    <div class="hero-cards">
+      <div class="hero-card">
+        <div class="category-tag">Technology</div>
+        <div class="hero-card-headline">OpenAI's New Model Passes the Bar Exam With 97th Percentile Score</div>
+        <div class="hero-card-meta">2 hours ago · 6 min</div>
+      </div>
+      <div class="hero-card">
+        <div class="category-tag">Climate</div>
+        <div class="hero-card-headline">Antarctic Ice Sheet Loss Accelerates to Record Levels</div>
+        <div class="hero-card-meta">4 hours ago · 8 min</div>
+      </div>
+      <div class="hero-card">
+        <div class="category-tag">Politics</div>
+        <div class="hero-card-headline">Senate Passes Landmark Digital Privacy Act in 78–22 Vote</div>
+        <div class="hero-card-meta">5 hours ago · 5 min</div>
+      </div>
+      <div class="hero-card">
+        <div class="category-tag">Business</div>
+        <div class="hero-card-headline">NVIDIA Surpasses $4 Trillion Market Cap</div>
+        <div class="hero-card-meta">7 hours ago · 4 min</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Panel: Politics -->
+  <div class="hero-panel" id="panel-politics">
+    <div class="hero-stage">
+      <div class="hero-bg" style="background: linear-gradient(135deg, #0a0a14 0%, #0d1f3c 40%, #1a0a30 100%); background-size:400% 400%; animation: bgShift 14s ease infinite;"></div>
+      <div class="hero-bg-word">VOTE</div>
+      <div class="hero-content">
+        <div class="hero-eyebrow" style="color:#7eb8f7">⬤ Politics</div>
+        <h1 class="hero-headline" style="color:#f0f4ff">UK General Election Called for <em style="color:#7eb8f7">April 14</em> — Race Too Close to Call</h1>
+        <div class="hero-meta"><span class="byline" style="color:rgba(240,244,255,0.85)">By Marcus Webb</span><span>·</span><span>1 hour ago</span><span>·</span><span>7 min read</span></div>
+        <p class="hero-deck">Polls show the race within the margin of error as both major parties scramble for votes in key swing constituencies. Analysts say turnout will determine everything.</p>
+        <div class="hero-actions">
+          <a href="#" class="read-more-hero" style="background:#3b82f6">Read Full Story</a>
+          <a href="#" class="read-more-ghost">More Politics</a>
+        </div>
+      </div>
+    </div>
+    <div class="hero-cards">
+      <div class="hero-card"><div class="category-tag">Politics</div><div class="hero-card-headline">Senate Passes Digital Privacy Act in 78–22 Bipartisan Vote</div><div class="hero-card-meta">5 hours ago</div></div>
+      <div class="hero-card"><div class="category-tag">Politics</div><div class="hero-card-headline">G20 Climate Deal Seen as Diplomatic Win for Host Nation</div><div class="hero-card-meta">8 hours ago</div></div>
+      <div class="hero-card"><div class="category-tag">Politics</div><div class="hero-card-headline">New Poll: 62% of Voters Say Economy Is Their Top Concern</div><div class="hero-card-meta">10 hours ago</div></div>
+      <div class="hero-card"><div class="category-tag">Politics</div><div class="hero-card-headline">White House Outlines New Trade Framework With Asian Partners</div><div class="hero-card-meta">Yesterday</div></div>
+    </div>
+  </div>
+
+  <!-- Panel: Technology -->
+  <div class="hero-panel" id="panel-technology">
+    <div class="hero-stage">
+      <div class="hero-bg" style="background: linear-gradient(135deg, #001a0a 0%, #003320 40%, #001a10 100%); background-size:400% 400%; animation: bgShift 14s ease infinite;"></div>
+      <div class="hero-bg-word">DATA</div>
+      <div class="hero-content">
+        <div class="hero-eyebrow" style="color:#34d399">⬤ Technology</div>
+        <h1 class="hero-headline" style="color:#f0fdf4">Quantum Computing Hits <em style="color:#34d399">1,000-Qubit</em> Milestone — Changes Everything</h1>
+        <div class="hero-meta"><span class="byline" style="color:rgba(240,253,244,0.85)">By Aiko Yamamoto</span><span>·</span><span>3 hours ago</span><span>·</span><span>9 min read</span></div>
+        <p class="hero-deck">Scientists at a joint US-EU research lab have achieved stable 1,000-qubit entanglement, a threshold long considered the gateway to practical quantum advantage over classical systems.</p>
+        <div class="hero-actions">
+          <a href="#" class="read-more-hero" style="background:#059669">Read Full Story</a>
+          <a href="#" class="read-more-ghost">More Technology</a>
+        </div>
+      </div>
+    </div>
+    <div class="hero-cards">
+      <div class="hero-card"><div class="category-tag">Technology</div><div class="hero-card-headline">OpenAI's New Model Passes Bar Exam With 97th Percentile Score</div><div class="hero-card-meta">2 hours ago</div></div>
+      <div class="hero-card"><div class="category-tag">Technology</div><div class="hero-card-headline">Apple Unveils Next-Gen Spatial Computing Platform</div><div class="hero-card-meta">6 hours ago</div></div>
+      <div class="hero-card"><div class="category-tag">Technology</div><div class="hero-card-headline">Meta Reports 4.1 Billion Daily Active Users Across Platforms</div><div class="hero-card-meta">3.5 hours ago</div></div>
+      <div class="hero-card"><div class="category-tag">Technology</div><div class="hero-card-headline">71 Languages Now Supported by Real-Time AI Translation</div><div class="hero-card-meta">2 hours ago</div></div>
+    </div>
+  </div>
+
+  <!-- Panel: Business -->
+  <div class="hero-panel" id="panel-business">
+    <div class="hero-stage">
+      <div class="hero-bg" style="background: linear-gradient(135deg, #1a1000 0%, #2c1f00 40%, #1a1000 100%); background-size:400% 400%; animation: bgShift 14s ease infinite;"></div>
+      <div class="hero-bg-word">GROW</div>
+      <div class="hero-content">
+        <div class="hero-eyebrow" style="color:var(--gold)">⬤ Business</div>
+        <h1 class="hero-headline">NVIDIA Crosses <em>$4 Trillion</em> — The Most Valuable Company in History</h1>
+        <div class="hero-meta"><span class="byline" style="color:rgba(245,240,232,0.85)">By Reza Khalili</span><span>·</span><span>7 hours ago</span><span>·</span><span>5 min read</span></div>
+        <p class="hero-deck">Driven by insatiable demand for AI accelerators, NVIDIA has become the first company ever to sustain a market cap above $4 trillion for more than 30 consecutive trading days.</p>
+        <div class="hero-actions">
+          <a href="#" class="read-more-hero" style="background:#c9a84c; color:#0a0a0a;">Read Full Story</a>
+          <a href="#" class="read-more-ghost">More Business</a>
+        </div>
+      </div>
+    </div>
+    <div class="hero-cards">
+      <div class="hero-card"><div class="category-tag">Business</div><div class="hero-card-headline">South Korea Announces $200B Semiconductor Investment Plan</div><div class="hero-card-meta">18 min ago</div></div>
+      <div class="hero-card"><div class="category-tag">Business</div><div class="hero-card-headline">Fed Holds Rates Steady Amid Mixed Economic Signals</div><div class="hero-card-meta">4 hours ago</div></div>
+      <div class="hero-card"><div class="category-tag">Business</div><div class="hero-card-headline">China's Property Crisis: Ghost Cities and $800B in Bailouts</div><div class="hero-card-meta">9 hours ago</div></div>
+      <div class="hero-card"><div class="category-tag">Business</div><div class="hero-card-headline">Four-Day Work Week Trials: What We Actually Learned</div><div class="hero-card-meta">8 hours ago</div></div>
+    </div>
+  </div>
+
+  <!-- Panel: Science -->
+  <div class="hero-panel" id="panel-science">
+    <div class="hero-stage">
+      <div class="hero-bg" style="background: linear-gradient(135deg, #100020 0%, #1a003a 40%, #0a0018 100%); background-size:400% 400%; animation: bgShift 14s ease infinite;"></div>
+      <div class="hero-bg-word">MIND</div>
+      <div class="hero-content">
+        <div class="hero-eyebrow" style="color:#c084fc">⬤ Science</div>
+        <h1 class="hero-headline" style="color:#fdf4ff">CRISPR Trial Shows <em style="color:#c084fc">94% Efficacy</em> Against Early-Stage Alzheimer's</h1>
+        <div class="hero-meta"><span class="byline" style="color:rgba(253,244,255,0.85)">By Dr. James Okafor</span><span>·</span><span>Today</span><span>·</span><span>10 min read</span></div>
+        <p class="hero-deck">Results from a landmark Phase III trial involving 4,000 patients across 12 countries could fundamentally change how neurodegenerative disease is understood and treated.</p>
+        <div class="hero-actions">
+          <a href="#" class="read-more-hero" style="background:#9333ea">Read Full Story</a>
+          <a href="#" class="read-more-ghost">More Science</a>
+        </div>
+      </div>
+    </div>
+    <div class="hero-cards">
+      <div class="hero-card"><div class="category-tag">Science</div><div class="hero-card-headline">NASA's Artemis V Crew Named — Lunar Base Arrives 2027</div><div class="hero-card-meta">Today</div></div>
+      <div class="hero-card"><div class="category-tag">Science</div><div class="hero-card-headline">ISS Crew Members Hospitalized; Cause Under Investigation</div><div class="hero-card-meta">42 min ago</div></div>
+      <div class="hero-card"><div class="category-tag">Science</div><div class="hero-card-headline">New Dinosaur Extinction Theory Rewrites What We Thought We Knew</div><div class="hero-card-meta">Yesterday</div></div>
+      <div class="hero-card"><div class="category-tag">Science</div><div class="hero-card-headline">WHO Declares End to Mpox Global Health Emergency</div><div class="hero-card-meta">Earlier today</div></div>
+    </div>
+  </div>
+
+  <!-- Panel: Climate -->
+  <div class="hero-panel" id="panel-climate">
+    <div class="hero-stage">
+      <div class="hero-bg" style="background: linear-gradient(135deg, #001a14 0%, #003d28 40%, #001a0a 100%); background-size:400% 400%; animation: bgShift 14s ease infinite;"></div>
+      <div class="hero-bg-word">EARTH</div>
+      <div class="hero-content">
+        <div class="hero-eyebrow" style="color:#4ade80">⬤ Climate</div>
+        <h1 class="hero-headline" style="color:#f0fdf4">G20 Signs <em style="color:#4ade80">$2.3 Trillion</em> Climate Deal — The Biggest in History</h1>
+        <div class="hero-meta"><span class="byline" style="color:rgba(240,253,244,0.85)">By Sofia Alonzo</span><span>·</span><span>Earlier today</span><span>·</span><span>8 min read</span></div>
+        <p class="hero-deck">Leaders from the world's largest economies have agreed on a landmark financing package to fund clean energy transition across 78 developing nations over the next decade.</p>
+        <div class="hero-actions">
+          <a href="#" class="read-more-hero" style="background:#16a34a">Read Full Story</a>
+          <a href="#" class="read-more-ghost">More Climate</a>
+        </div>
+      </div>
+    </div>
+    <div class="hero-cards">
+      <div class="hero-card"><div class="category-tag">Climate</div><div class="hero-card-headline">Antarctic Ice Sheet Loss Accelerates to Record Levels</div><div class="hero-card-meta">4 hours ago</div></div>
+      <div class="hero-card"><div class="category-tag">Climate</div><div class="hero-card-headline">Kenyan Startup Wins UN Prize for Solar Desalination Tech</div><div class="hero-card-meta">2 hours ago</div></div>
+      <div class="hero-card"><div class="category-tag">Climate</div><div class="hero-card-headline">Climate Refugees Are Reshaping the Geopolitical Map</div><div class="hero-card-meta">Yesterday</div></div>
+      <div class="hero-card"><div class="category-tag">Climate</div><div class="hero-card-headline">America's Power Grid Was Built for the 20th Century</div><div class="hero-card-meta">5 hours ago</div></div>
+    </div>
+  </div>
+
+  <!-- Panel: Culture -->
+  <div class="hero-panel" id="panel-culture">
+    <div class="hero-stage">
+      <div class="hero-bg" style="background: linear-gradient(135deg, #1a000a 0%, #38001a 40%, #1a0008 100%); background-size:400% 400%; animation: bgShift 14s ease infinite;"></div>
+      <div class="hero-bg-word">ARTS</div>
+      <div class="hero-content">
+        <div class="hero-eyebrow" style="color:#fb7185">⬤ Culture</div>
+        <h1 class="hero-headline" style="color:#fff1f2">Hollywood Lost the Plot — Now <em style="color:#fb7185">Something New</em> Is Rising</h1>
+        <div class="hero-meta"><span class="byline" style="color:rgba(255,241,242,0.85)">By Priya Nambiar</span><span>·</span><span>Today</span><span>·</span><span>12 min read</span></div>
+        <p class="hero-deck">Theatrical attendance is rebounding, but the studios that survive the streaming wars will look nothing like the ones that defined the last decade of content production.</p>
+        <div class="hero-actions">
+          <a href="#" class="read-more-hero" style="background:#e11d48">Read Full Story</a>
+          <a href="#" class="read-more-ghost">More Culture</a>
+        </div>
+      </div>
+    </div>
+    <div class="hero-cards">
+      <div class="hero-card"><div class="category-tag">Culture</div><div class="hero-card-headline">The Album That's Redefining What Pop Music Can Be in 2026</div><div class="hero-card-meta">6 hours ago</div></div>
+      <div class="hero-card"><div class="category-tag">Culture</div><div class="hero-card-headline">Inside the World's Largest Underground City — Now Open to Tourists</div><div class="hero-card-meta">Yesterday</div></div>
+      <div class="hero-card"><div class="category-tag">Culture</div><div class="hero-card-headline">Cannes Film Festival Announces Its Most Diverse Jury Ever</div><div class="hero-card-meta">Today</div></div>
+      <div class="hero-card"><div class="category-tag">Culture</div><div class="hero-card-headline">Why Vinyl Records Are Outselling CDs for the 19th Straight Year</div><div class="hero-card-meta">8 hours ago</div></div>
+    </div>
+  </div>
+
+</section>
+
+<!-- ===== TOP STORIES GRID ===== -->
+<div class="container">
+  <div class="section-header reveal">
+    <span class="section-title">Top Stories</span>
+    <div class="section-line"></div>
+    <a href="#" class="section-link">View All →</a>
+  </div>
+  <div class="stories-grid reveal">
+    <article class="grid-story">
+      <div class="story-number">01</div>
+      <div class="category-tag">Science</div>
+      <h3 class="grid-headline">CRISPR Trial Shows 94% Efficacy in Reversing Early-Stage Alzheimer's</h3>
+      <p class="grid-excerpt">A landmark Phase III clinical trial involving 4,000 patients has produced results that could fundamentally change how neurodegenerative disease is treated.</p>
+      <div class="lead-meta"><span>Dr. James Okafor</span><span>·</span><span>10 min read</span></div>
+    </article>
+    <article class="grid-story">
+      <div class="story-number">02</div>
+      <div class="category-tag">Culture</div>
+      <h3 class="grid-headline">How Hollywood Lost the Plot — And What Comes After the Streaming Wars</h3>
+      <p class="grid-excerpt">Theatrical attendance is rebounding, but the studios that survive will look nothing like the ones that dominated the last decade of content.</p>
+      <div class="lead-meta"><span>Priya Nambiar</span><span>·</span><span>12 min read</span></div>
+    </article>
+    <article class="grid-story">
+      <div class="story-number">03</div>
+      <div class="category-tag">Economy</div>
+      <h3 class="grid-headline">The Ghost City Problem: China's Property Crisis Is Far From Over</h3>
+      <p class="grid-excerpt">Despite government intervention worth over $800 billion, millions of unfinished apartments and empty developments still dot the Chinese landscape.</p>
+      <div class="lead-meta"><span>Wei Liang Chen</span><span>·</span><span>9 min read</span></div>
+    </article>
+    <article class="grid-story">
+      <div class="story-number">04</div>
+      <div class="category-tag">Space</div>
+      <h3 class="grid-headline">NASA's Artemis V Crew Confirmed — First Lunar Base Module Arrives in 2027</h3>
+      <p class="grid-excerpt">The agency has named its five-person crew for the mission that will see humans return to the lunar surface for an extended 30-day stay.</p>
+      <div class="lead-meta"><span>Sofia Alonzo</span><span>·</span><span>7 min read</span></div>
+    </article>
+  </div>
+</div>
+
+<!-- ===== MAGAZINE ROW ===== -->
+<div class="container">
+  <div class="section-header reveal">
+    <span class="section-title">In Depth</span>
+    <div class="section-line"></div>
+    <a href="#" class="section-link">Investigations →</a>
+  </div>
+  <div class="magazine-row reveal">
+    <article class="mag-featured">
+      <div class="mag-bg"></div>
+      <div class="mag-overlay"></div>
+      <div class="mag-content">
+        <div class="category-tag">Investigation</div>
+        <h2 class="mag-headline">The Algorithm That Decides Who Gets a Loan — And Who Doesn't</h2>
+        <p class="mag-deck">A six-month investigation into AI-driven credit scoring reveals systemic biases that disproportionately affect minority communities across 47 states.</p>
+      </div>
+    </article>
+    <div>
+      <article class="mag-stack-item">
+        <div class="category-tag">Health</div>
+        <h3 class="mag-stack-headline">Ultra-Processed Food Consumption Linked to 32% Higher Dementia Risk in 30-Year Study</h3>
+        <div class="lead-meta" style="margin-top:8px"><span>8 min read</span><span>·</span><span>3 hours ago</span></div>
+      </article>
+      <article class="mag-stack-item">
+        <div class="category-tag">Education</div>
+        <h3 class="mag-stack-headline">The College Degree Is No Longer the Only Path — And Employers Are Noticing</h3>
+        <div class="lead-meta" style="margin-top:8px"><span>11 min read</span><span>·</span><span>6 hours ago</span></div>
+      </article>
+      <article class="mag-stack-item">
+        <div class="category-tag">Conflict</div>
+        <h3 class="mag-stack-headline">Drone Warfare Has Changed Everything. Militaries Are Still Catching Up.</h3>
+        <div class="lead-meta" style="margin-top:8px"><span>14 min read</span><span>·</span><span>Yesterday</span></div>
+      </article>
+    </div>
+    <div>
+      <article class="mag-stack-item">
+        <div class="category-tag">Infrastructure</div>
+        <h3 class="mag-stack-headline">America's Power Grid Was Built for the 20th Century. The 21st Is Breaking It.</h3>
+        <div class="lead-meta" style="margin-top:8px"><span>9 min read</span><span>·</span><span>5 hours ago</span></div>
+      </article>
+      <article class="mag-stack-item">
+        <div class="category-tag">Labour</div>
+        <h3 class="mag-stack-headline">The Four-Day Week Experiment Is Over. Here's What We Actually Learned.</h3>
+        <div class="lead-meta" style="margin-top:8px"><span>10 min read</span><span>·</span><span>8 hours ago</span></div>
+      </article>
+      <article class="mag-stack-item">
+        <div class="category-tag">Migration</div>
+        <h3 class="mag-stack-headline">Climate Refugees Are Reshaping the Geopolitical Map Before the World Is Ready</h3>
+        <div class="lead-meta" style="margin-top:8px"><span>13 min read</span><span>·</span><span>Yesterday</span></div>
+      </article>
+    </div>
+  </div>
+</div>
+
+<!-- ===== OPINION STRIP ===== -->
+<div class="opinion-strip reveal">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-title">Opinion & Analysis</span>
+      <div class="section-line"></div>
+      <a href="#" class="section-link" style="color:rgba(255,255,255,0.3)">All Opinions →</a>
+    </div>
+    <div class="opinion-grid">
+      <div class="opinion-card">
+        <div class="opinion-avatar" style="background: var(--gold);">EM</div>
+        <div class="opinion-author">Elena Marchetti — Foreign Affairs Editor</div>
+        <h3 class="opinion-headline">"The West Is Running Out of Time to Define What It Stands For"</h3>
+        <p class="opinion-excerpt">Without a coherent narrative to offer the Global South, democratic nations risk ceding influence to authoritarian models that are increasingly confident on the world stage.</p>
+      </div>
+      <div class="opinion-card">
+        <div class="opinion-avatar" style="background: #e74c3c;">RK</div>
+        <div class="opinion-author">Reza Khalili — Economics Correspondent</div>
+        <h3 class="opinion-headline">"Inflation Is Gone. The Damage It Left Behind Is Not."</h3>
+        <p class="opinion-excerpt">Central banks declared victory too soon. The real cost of the 2022–2024 inflation cycle is only now showing up in household balance sheets and small business failures.</p>
+      </div>
+      <div class="opinion-card">
+        <div class="opinion-avatar" style="background: #2980b9;">AY</div>
+        <div class="opinion-author">Aiko Yamamoto — Tech & Society</div>
+        <h3 class="opinion-headline">"We Asked AI to Fix Healthcare. We Forgot to Ask the Patients."</h3>
+        <p class="opinion-excerpt">Every major health system is piloting AI diagnostics, but the rollout is happening without genuine informed consent from the people whose lives hang in the balance.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== LATEST + SIDEBAR ===== -->
+<div class="container">
+  <div class="bottom-grid">
+    <!-- Latest News -->
+    <div class="latest-list">
+      <div class="section-header reveal">
+        <span class="section-title">Latest</span>
+        <div class="section-line"></div>
+      </div>
+      <article class="latest-item reveal">
+        <div class="latest-num">01</div>
+        <div class="latest-content">
+          <h3 class="latest-headline">South Korea Announces $200 Billion Semiconductor Investment Over Five Years</h3>
+          <div class="latest-time"><span class="category-tag" style="display:inline">Business</span> · 18 minutes ago</div>
+        </div>
+      </article>
+      <article class="latest-item reveal">
+        <div class="latest-num">02</div>
+        <div class="latest-content">
+          <h3 class="latest-headline">Two Crew Members Hospitalized After Incident Aboard ISS; Cause Under Investigation</h3>
+          <div class="latest-time"><span class="category-tag" style="display:inline">Science</span> · 42 minutes ago</div>
+        </div>
+      </article>
+      <article class="latest-item reveal">
+        <div class="latest-num">03</div>
+        <div class="latest-content">
+          <h3 class="latest-headline">UK General Election Called for April 14 — Polls Show Race Within Margin of Error</h3>
+          <div class="latest-time"><span class="category-tag" style="display:inline">Politics</span> · 1 hour ago</div>
+        </div>
+      </article>
+      <article class="latest-item reveal">
+        <div class="latest-num">04</div>
+        <div class="latest-content">
+          <h3 class="latest-headline">Record 71 Languages Now Supported by Real-Time AI Translation Tools</h3>
+          <div class="latest-time"><span class="category-tag" style="display:inline">Technology</span> · 2 hours ago</div>
+        </div>
+      </article>
+      <article class="latest-item reveal">
+        <div class="latest-num">05</div>
+        <div class="latest-content">
+          <h3 class="latest-headline">Kenyan Startup Wins UN Prize for Solar Desalination Technology Serving 1.2 Million</h3>
+          <div class="latest-time"><span class="category-tag" style="display:inline">Climate</span> · 2 hours ago</div>
+        </div>
+      </article>
+      <article class="latest-item reveal">
+        <div class="latest-num">06</div>
+        <div class="latest-content">
+          <h3 class="latest-headline">FIFA Confirms 2030 World Cup Will Be Held Across Six Continents</h3>
+          <div class="latest-time"><span class="category-tag" style="display:inline">Sport</span> · 3 hours ago</div>
+        </div>
+      </article>
+      <article class="latest-item reveal">
+        <div class="latest-num">07</div>
+        <div class="latest-content">
+          <h3 class="latest-headline">Meta Reports 4.1 Billion Daily Active Users Across Its Platforms</h3>
+          <div class="latest-time"><span class="category-tag" style="display:inline">Technology</span> · 3.5 hours ago</div>
+        </div>
+      </article>
+    </div>
+
+    <div style="background: var(--ink); width: 1px; margin: 0 0 0 40px;"></div>
+
+    <!-- Right Sidebar -->
+    <div class="sidebar-right">
+      <!-- Newsletter -->
+      <div class="widget newsletter-widget">
+        <div class="widget-title">The Morning Brief</div>
+        <div class="widget-subtitle">Five essential stories, delivered before 7am. No noise, no filler — just what matters.</div>
+        <input class="newsletter-input" type="email" placeholder="your@email.com">
+        <button class="newsletter-btn">Subscribe Free →</button>
+      </div>
+
+      <!-- Trending -->
+      <div class="widget trending-widget" style="margin-top: 28px;">
+        <div class="widget-title-sm">Trending Now</div>
+        <div class="trending-item">
+          <div class="trending-rank">1</div>
+          <div class="trending-headline">The Science Behind the New GLP-1 Weight Loss Drugs</div>
+        </div>
+        <div class="trending-item">
+          <div class="trending-rank">2</div>
+          <div class="trending-headline">Why Japan's Economy Just Surprised Everyone</div>
+        </div>
+        <div class="trending-item">
+          <div class="trending-rank">3</div>
+          <div class="trending-headline">The Hidden Cost of AI Data Centers on Local Water Supplies</div>
+        </div>
+        <div class="trending-item">
+          <div class="trending-rank">4</div>
+          <div class="trending-headline">Inside the World's Largest Underground City</div>
+        </div>
+        <div class="trending-item">
+          <div class="trending-rank">5</div>
+          <div class="trending-headline">A New Theory on Why Dinosaurs Went Extinct — And It Changes Everything</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== FOOTER ===== -->
+<footer>
+  <div class="footer-logo">Prime Headlines</div>
+  <div class="footer-tagline">The World in Focus — Every Hour, Every Day</div>
+  <div class="footer-grid">
+    <div>
+      <div class="footer-col-title">Sections</div>
+      <ul class="footer-links">
+        <li><a href="#">World</a></li><li><a href="#">Politics</a></li>
+        <li><a href="#">Business</a></li><li><a href="#">Technology</a></li>
+        <li><a href="#">Science</a></li><li><a href="#">Culture</a></li>
+        <li><a href="#">Climate</a></li><li><a href="#">Opinion</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="footer-col-title">Company</div>
+      <ul class="footer-links">
+        <li><a href="#">About Prime Headlines</a></li><li><a href="#">Editorial Standards</a></li>
+        <li><a href="#">Newsroom</a></li><li><a href="#">Careers</a></li>
+        <li><a href="#">Contact Us</a></li><li><a href="#">Advertise</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="footer-col-title">Subscribe</div>
+      <ul class="footer-links">
+        <li><a href="#">Digital Access</a></li><li><a href="#">Print Edition</a></li>
+        <li><a href="#">Morning Brief</a></li><li><a href="#">Weekend Edition</a></li>
+        <li><a href="#">Student Rates</a></li><li><a href="#">Group Plans</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="footer-col-title">Follow</div>
+      <ul class="footer-links">
+        <li><a href="#">X / Twitter</a></li><li><a href="#">Instagram</a></li>
+        <li><a href="#">LinkedIn</a></li><li><a href="#">YouTube</a></li>
+        <li><a href="#">RSS Feed</a></li><li><a href="#">Podcast</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2026 Prime Headlines Inc. All rights reserved.</span>
+    <span>Privacy · Terms · Cookie Policy · Accessibility</span>
+  </div>
+</footer>
+
+<script>
+  // Custom cursor
+  const cursor = document.getElementById('cursor');
+  const cursorRing = document.getElementById('cursorRing');
+  let mouseX = 0, mouseY = 0;
+  let ringX = 0, ringY = 0;
+
+  document.addEventListener('mousemove', (e) => {
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+    cursor.style.left = mouseX + 'px';
+    cursor.style.top = mouseY + 'px';
+  });
+
+  function animateRing() {
+    ringX += (mouseX - ringX) * 0.12;
+    ringY += (mouseY - ringY) * 0.12;
+    cursorRing.style.left = ringX + 'px';
+    cursorRing.style.top = ringY + 'px';
+    requestAnimationFrame(animateRing);
+  }
+  animateRing();
+
+  // Hover effects on cursor
+  document.querySelectorAll('a, button, article, .nav-item').forEach(el => {
+    el.addEventListener('mouseenter', () => {
+      cursor.style.width = '20px';
+      cursor.style.height = '20px';
+      cursorRing.style.width = '52px';
+      cursorRing.style.height = '52px';
+    });
+    el.addEventListener('mouseleave', () => {
+      cursor.style.width = '12px';
+      cursor.style.height = '12px';
+      cursorRing.style.width = '36px';
+      cursorRing.style.height = '36px';
+    });
+  });
+
+  // Scroll reveal
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.12 });
+  reveals.forEach(el => observer.observe(el));
+
+  // Category filter tabs
+  const filterTabs = document.querySelectorAll('.filter-tab');
+  const heroPanels = document.querySelectorAll('.hero-panel');
+
+  filterTabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      const cat = tab.dataset.category;
+
+      // Update active tab
+      filterTabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+
+      // Show matching panel
+      heroPanels.forEach(panel => {
+        panel.classList.remove('active');
+      });
+
+      // Determine which panel to show
+      let targetId = 'panel-all';
+      if (cat !== 'all') {
+        const found = document.getElementById('panel-' + cat);
+        if (found) targetId = 'panel-' + cat;
+      }
+      const target = document.getElementById(targetId);
+      if (target) {
+        target.classList.add('active');
+        // Animate in
+        target.style.opacity = '0';
+        target.style.transform = 'translateY(16px)';
+        setTimeout(() => {
+          target.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
+          target.style.opacity = '1';
+          target.style.transform = 'translateY(0)';
+        }, 10);
+      }
+    });
+  });
+
+  // Live clock
+  function updateDate() {
+    const el = document.getElementById('dateDisplay');
+    const now = new Date();
+    el.textContent = now.toLocaleString('en-US', {
+      weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
+      hour: '2-digit', minute: '2-digit'
+    });
+  }
+  updateDate();
+  setInterval(updateDate, 60000);
+</script>
+</body>
+</html>
